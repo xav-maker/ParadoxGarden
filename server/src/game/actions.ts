@@ -36,11 +36,9 @@ export function validateAction(state: GameState, action: GameAction, actionIndex
     case ActionType.AlterTime:
       return validateAlterTime(cell);
     case ActionType.Freeze:
-      return validateFreeze(cell);
+      return validateFreeze(cell, player.id);
     case ActionType.Harvest:
       return validateHarvest(cell, player.id);
-    case ActionType.Root:
-      return validateRoot(cell, player.id);
     case ActionType.Spread:
       return validateSpread(state, cell, player.id);
     default:
@@ -61,21 +59,16 @@ function validateAlterTime(cell: Cell): string | null {
   return null;
 }
 
-function validateFreeze(cell: Cell): string | null {
-  if (cell.temporalEffect) return 'Cell already has a temporal alteration this turn';
+function validateFreeze(cell: Cell, playerId: string): string | null {
+  if (!cell.plant) return 'No plant to freeze';
+  if (cell.plant.ownerId !== playerId) return 'Cannot freeze opponent plant';
+  if (cell.temporalEffect) return 'Cell already has a temporal alteration';
   return null;
 }
 
 function validateHarvest(cell: Cell, playerId: string): string | null {
   if (!cell.plant) return 'No plant to harvest';
   if (cell.plant.ownerId !== playerId) return 'Cannot harvest opponent plant';
-  return null;
-}
-
-function validateRoot(cell: Cell, playerId: string): string | null {
-  if (!cell.plant) return 'No plant to root';
-  if (cell.plant.ownerId !== playerId) return 'Cannot root opponent plant';
-  if (cell.plant.rooted) return 'Plant is already rooted';
   return null;
 }
 
@@ -106,22 +99,21 @@ export function applyAction(state: GameState, action: GameAction): string[] {
         ownerId: player.id,
         species: action.species,
         age: 0,
-        rooted: false,
         hasRegressed: false,
       };
       events.push(`${player.name} sowed ${action.species} at (${x},${y})`);
       break;
     }
     case ActionType.AlterTime: {
-      cell.temporalEffect = { state: action.targetState, turnsRemaining: 1 };
+      cell.temporalEffect = { state: action.targetState, turnsRemaining: 2 };
       cell.timeState = action.targetState;
       events.push(`${player.name} altered time at (${x},${y}) to ${action.targetState}`);
       break;
     }
     case ActionType.Freeze: {
-      cell.temporalEffect = { state: TimeState.Frozen, turnsRemaining: 1 };
+      cell.temporalEffect = { state: TimeState.Frozen, turnsRemaining: 4 };
       cell.timeState = TimeState.Frozen;
-      events.push(`${player.name} froze (${x},${y})`);
+      events.push(`${player.name} froze plant at (${x},${y}) for 2 rounds`);
       break;
     }
     case ActionType.Harvest: {
@@ -129,11 +121,6 @@ export function applyAction(state: GameState, action: GameAction): string[] {
       cell.plant = null;
       player.sap += 1;
       events.push(`${player.name} harvested ${species} at (${x},${y}), gained 1 sap`);
-      break;
-    }
-    case ActionType.Root: {
-      cell.plant!.rooted = true;
-      events.push(`${player.name} rooted plant at (${x},${y})`);
       break;
     }
     case ActionType.Spread: {
@@ -146,7 +133,6 @@ export function applyAction(state: GameState, action: GameAction): string[] {
             ownerId: player.id,
             species: Species.EchoShroom,
             age: 0,
-            rooted: false,
             hasRegressed: false,
           };
           events.push(`Echo Shroom spread to (${neighbor.x},${neighbor.y})`);

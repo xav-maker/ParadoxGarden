@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, type ReactNode } from 'react';
+import { useCallback, useMemo, type ReactNode } from 'react';
 import {
   type GameAction,
   type ClientGameState,
@@ -10,7 +10,7 @@ import {
   SPECIES_TERRAIN_COMPATIBILITY,
 } from '@jardins/shared';
 import {
-  SowIcon, AlterTimeIcon, FreezeIcon, HarvestIcon, RootIcon, SpreadIcon,
+  SowIcon, AlterTimeIcon, FreezeIcon, HarvestIcon, SpreadIcon,
   SapIcon, TimeIcon,
   SPECIES_NAMES, TIME_STATE_NAMES,
 } from './Icons';
@@ -30,10 +30,9 @@ interface ActionBarProps {
 const ACTION_DEFS: Record<ActionType, { label: string; icon: ReactNode; description: string }> = {
   [ActionType.Sow]: { label: 'Semer', icon: <SowIcon />, description: '1 Seve — Place une graine' },
   [ActionType.AlterTime]: { label: 'Alterer', icon: <AlterTimeIcon />, description: '1 Charge — Modifie le temps' },
-  [ActionType.Freeze]: { label: 'Figer', icon: <FreezeIcon />, description: '2 Charges — Fige une case' },
+  [ActionType.Freeze]: { label: 'Figer', icon: <FreezeIcon />, description: '1 Seve — Fige une plante alliee 2 tours' },
   [ActionType.Harvest]: { label: 'Recolter', icon: <HarvestIcon />, description: 'Gratuit — Detruit une plante alliee' },
-  [ActionType.Root]: { label: 'Enraciner', icon: <RootIcon />, description: '1 Seve — Protege une plante' },
-  [ActionType.Spread]: { label: 'Disseminer', icon: <SpreadIcon />, description: '1 Seve — Champignon uniquement' },
+  [ActionType.Spread]: { label: 'Disseminer', icon: <SpreadIcon />, description: 'Gratuit — Champignon uniquement' },
 };
 
 export function ActionBar({
@@ -160,9 +159,6 @@ function ActionConfigurator({
   myPlayerId: string;
   onConfirm: (action: GameAction) => void;
 }) {
-  const [selectedSpecies, setSelectedSpecies] = useState<Species>(Species.Liane);
-  const [selectedTimeState, setSelectedTimeState] = useState<TimeState>(TimeState.Accelerated);
-
   switch (actionType) {
     case ActionType.Sow: {
       if (cell.plant) return <div className="config-hint">Case occupee</div>;
@@ -171,19 +167,20 @@ function ActionConfigurator({
       );
       if (compatible.length === 0) return <div className="config-hint">Terrain incompatible</div>;
 
-      const effectiveSpecies = compatible.includes(selectedSpecies) ? selectedSpecies : compatible[0];
-
       return (
         <div className="action-config">
-          <span>Espece :</span>
-          <select value={effectiveSpecies} onChange={(e) => setSelectedSpecies(e.target.value as Species)}>
+          <span className="config-label">Espece :</span>
+          <div className="config-choices">
             {compatible.map((sp) => (
-              <option key={sp} value={sp}>{SPECIES_NAMES[sp] ?? sp}</option>
+              <button
+                key={sp}
+                className="choice-btn"
+                onClick={() => onConfirm({ type: ActionType.Sow, x: cell.x, y: cell.y, species: sp })}
+              >
+                {SPECIES_NAMES[sp] ?? sp}
+              </button>
             ))}
-          </select>
-          <button onClick={() => onConfirm({ type: ActionType.Sow, x: cell.x, y: cell.y, species: effectiveSpecies })}>
-            Confirmer
-          </button>
+          </div>
         </div>
       );
     }
@@ -192,24 +189,28 @@ function ActionConfigurator({
       const states = [TimeState.Accelerated, TimeState.Slowed, TimeState.Reversed] as const;
       return (
         <div className="action-config">
-          <span>Etat :</span>
-          <select value={selectedTimeState} onChange={(e) => setSelectedTimeState(e.target.value as TimeState)}>
+          <span className="config-label">Etat :</span>
+          <div className="config-choices">
             {states.map((s) => (
-              <option key={s} value={s}>{TIME_STATE_NAMES[s] ?? s}</option>
+              <button
+                key={s}
+                className="choice-btn"
+                onClick={() => onConfirm({ type: ActionType.AlterTime, x: cell.x, y: cell.y, targetState: s })}
+              >
+                {TIME_STATE_NAMES[s] ?? s}
+              </button>
             ))}
-          </select>
-          <button onClick={() => onConfirm({ type: ActionType.AlterTime, x: cell.x, y: cell.y, targetState: selectedTimeState as any })}>
-            Confirmer
-          </button>
+          </div>
         </div>
       );
     }
     case ActionType.Freeze:
-      if (cell.temporalEffect) return <div className="config-hint">Deja alteree ce tour</div>;
+      if (!cell.plant || cell.plant.ownerId !== myPlayerId) return <div className="config-hint">Pas de plante alliee ici</div>;
+      if (cell.temporalEffect) return <div className="config-hint">Deja sous effet temporel</div>;
       return (
         <div className="action-config">
           <button onClick={() => onConfirm({ type: ActionType.Freeze, x: cell.x, y: cell.y })}>
-            Figer cette case
+            Figer cette plante
           </button>
         </div>
       );
@@ -219,16 +220,6 @@ function ActionConfigurator({
         <div className="action-config">
           <button onClick={() => onConfirm({ type: ActionType.Harvest, x: cell.x, y: cell.y })}>
             Recolter
-          </button>
-        </div>
-      );
-    case ActionType.Root:
-      if (!cell.plant || cell.plant.ownerId !== myPlayerId) return <div className="config-hint">Pas de plante alliee ici</div>;
-      if (cell.plant.rooted) return <div className="config-hint">Deja enracinee</div>;
-      return (
-        <div className="action-config">
-          <button onClick={() => onConfirm({ type: ActionType.Root, x: cell.x, y: cell.y })}>
-            Enraciner
           </button>
         </div>
       );

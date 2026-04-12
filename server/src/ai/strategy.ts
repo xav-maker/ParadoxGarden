@@ -206,7 +206,7 @@ function nodeActions(state: GameState, playerId: string): GameAction[] {
               y: c.y,
               targetState: TimeState.Accelerated,
             });
-          if (c.plant.age >= 2 && !c.temporalEffect)
+          if (c.plant.age >= 2 && !c.temporalEffect && c.plant.ownerId === playerId)
             actions.push({ type: ActionType.Freeze, x: c.x, y: c.y });
         }
       }

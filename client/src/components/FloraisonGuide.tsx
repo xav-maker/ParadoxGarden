@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FloraisonId, ClientPlayer } from '@jardins/shared';
-import { FLORAISON_DEFINITIONS } from '@jardins/shared';
+import { FLORAISON_DEFINITIONS, ALL_FLORAISON_IDS } from '@jardins/shared';
 
 interface FloraisonGuideProps {
   player: ClientPlayer;
@@ -52,32 +52,46 @@ const CATEGORY_COLORS: Record<string, string> = {
 export function FloraisonGuide({ player }: FloraisonGuideProps) {
   const [expandedId, setExpandedId] = useState<FloraisonId | null>(null);
 
-  if (!player.secretObjectives) return null;
+  const myObjectives = new Set(player.secretObjectives ?? []);
 
   return (
     <div className="floraison-guide">
       <h3>Floraisons-Signes</h3>
       <p className="floraison-guide-hint">
-        Realisez l'une de ces configurations pour gagner.
+        Realisez l'une de vos floraisons en couleur pour gagner.
       </p>
 
-      {player.secretObjectives.map((objId) => {
+      {ALL_FLORAISON_IDS.map((objId) => {
         const def = FLORAISON_DEFINITIONS[objId];
         const conditions = FLORAISON_CONDITIONS[objId] ?? [];
         const isExpanded = expandedId === objId;
+        const isMyObjective = myObjectives.has(objId);
         const completed = player.completedObjectives.includes(objId);
         const catColor = CATEGORY_COLORS[def.category] ?? '#8a9a8e';
 
         return (
           <div
             key={objId}
-            className={`floraison-card ${completed ? 'completed' : ''} ${isExpanded ? 'expanded' : ''}`}
+            className={`floraison-card ${completed ? 'completed' : ''} ${isExpanded ? 'expanded' : ''} ${!isMyObjective ? 'inactive' : ''}`}
             onClick={() => setExpandedId(isExpanded ? null : objId)}
           >
             <div className="floraison-card-header">
-              <span className="floraison-card-dot" style={{ background: catColor }} />
-              <span className="floraison-card-name">{def.name}</span>
-              <span className="floraison-card-cat" style={{ color: catColor }}>[{def.category}]</span>
+              <span
+                className="floraison-card-dot"
+                style={{ background: isMyObjective ? catColor : '#555' }}
+              />
+              <span
+                className="floraison-card-name"
+                style={{ color: isMyObjective ? undefined : '#666' }}
+              >
+                {def.name}
+              </span>
+              <span
+                className="floraison-card-cat"
+                style={{ color: isMyObjective ? catColor : '#555' }}
+              >
+                [{def.category}]
+              </span>
               {completed && <span className="floraison-card-check">&#10003;</span>}
               <span className={`floraison-card-arrow ${isExpanded ? 'open' : ''}`}>&#9662;</span>
             </div>

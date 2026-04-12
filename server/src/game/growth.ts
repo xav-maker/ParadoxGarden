@@ -21,19 +21,10 @@ export function resolveGrowth(state: GameState): string[] {
       if (!cell.plant) continue;
 
       if (cell.timeState === TimeState.Frozen) {
-        if (cell.plant.rooted) {
-          cell.plant.rooted = false;
-        }
         continue;
       }
 
       const delta = TIME_STATE_AGE_DELTA[cell.timeState] ?? 1;
-
-      if (cell.plant.rooted && delta < 0) {
-        cell.plant.rooted = false;
-        events.push(`Rooted plant at (${x},${y}) resisted time alteration`);
-        continue;
-      }
 
       const oldAge = cell.plant.age;
       let newAge = cell.plant.age + delta;

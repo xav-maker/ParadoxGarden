@@ -36,6 +36,23 @@ export function Cell({ cell, isSelected, isTargetable, myPlayerId, onClick }: Ce
   if (isSelected) cellFilter = 'url(#glow-select)';
   else if (isTargetable) cellFilter = 'url(#glow-target)';
 
+  const hasPlant = !!cell.plant;
+  let strokeColor: string;
+  let strokeW: number;
+  if (isSelected) {
+    strokeColor = '#d4a843';
+    strokeW = 2.5;
+  } else if (isTargetable) {
+    strokeColor = 'rgba(62,207,165,0.5)';
+    strokeW = 1.5;
+  } else if (hasPlant) {
+    strokeColor = playerColor;
+    strokeW = 2;
+  } else {
+    strokeColor = 'rgba(255,255,255,0.06)';
+    strokeW = 0.5;
+  }
+
   return (
     <g onClick={onClick} style={{ cursor: isTargetable || cell.plant ? 'pointer' : 'default' }}>
       {/* Terrain tile */}
@@ -46,8 +63,8 @@ export function Cell({ cell, isSelected, isTargetable, myPlayerId, onClick }: Ce
         height={innerSize}
         rx={5}
         fill={TERRAIN_FILLS[cell.terrain]}
-        stroke={isSelected ? '#d4a843' : isTargetable ? 'rgba(62,207,165,0.5)' : 'rgba(255,255,255,0.06)'}
-        strokeWidth={isSelected ? 2.5 : isTargetable ? 1.5 : 0.5}
+        stroke={strokeColor}
+        strokeWidth={strokeW}
         filter={cellFilter}
       />
 
@@ -77,17 +94,6 @@ export function Cell({ cell, isSelected, isTargetable, myPlayerId, onClick }: Ce
             color={playerColor}
           />
 
-          {/* Rooted indicator */}
-          {cell.plant.rooted && (
-            <g transform={`translate(${x + innerSize - 4}, ${y + innerSize - 6})`}>
-              <path
-                d="M0,-4 L-3,2 L0,0 L3,2 Z"
-                fill={playerColor}
-                opacity={0.8}
-              />
-              <line x1="0" y1="0" x2="0" y2="5" stroke={playerColor} strokeWidth={1.5} opacity={0.6} />
-            </g>
-          )}
         </g>
       )}
     </g>

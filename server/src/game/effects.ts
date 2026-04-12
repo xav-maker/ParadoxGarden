@@ -40,7 +40,6 @@ export function resolveEffects(state: GameState): string[] {
                 ownerId,
                 species: Species.Liane,
                 age: 0,
-                rooted: false,
                 hasRegressed: false,
               };
               events.push(`Liane propagated from (${x},${y}) to (${n.x},${n.y})`);

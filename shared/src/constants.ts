@@ -42,10 +42,9 @@ export interface ActionCost {
 export const ACTION_COSTS: Record<ActionType, ActionCost> = {
   [ActionType.Sow]: { sap: 1, timeCharges: 0 },
   [ActionType.AlterTime]: { sap: 0, timeCharges: 1 },
-  [ActionType.Freeze]: { sap: 0, timeCharges: 2 },
+  [ActionType.Freeze]: { sap: 1, timeCharges: 0 },
   [ActionType.Harvest]: { sap: 0, timeCharges: 0 },
-  [ActionType.Root]: { sap: 1, timeCharges: 0 },
-  [ActionType.Spread]: { sap: 1, timeCharges: 0 },
+  [ActionType.Spread]: { sap: 0, timeCharges: 0 },
 };
 
 // ── Species / terrain compatibility ──

@@ -111,7 +111,7 @@ function OverviewSection() {
             <strong>Seve</strong>
           </div>
           <p>Ressource principale d'action. Gain : +1 par tour. Sert a semer,
-          enraciner et disseminer.</p>
+          figer et disseminer.</p>
         </div>
         <div className="rules-card">
           <div className="rules-card-header">
@@ -119,7 +119,7 @@ function OverviewSection() {
             <strong>Charges de Temps</strong>
           </div>
           <p>Permet de modifier la temporalite locale. Gain : +1 tous les 2 tours.
-          Sert a accelerer, ralentir, inverser ou figer.</p>
+          Sert a accelerer, ralentir ou inverser le temps.</p>
         </div>
       </div>
 
@@ -346,7 +346,7 @@ function TerrainsSection() {
               <strong>Pierre</strong>
               <span className="terrain-count">~6 cases</span>
             </div>
-            <p>Croissance plus rigide. Bonne base pour les effets de fixation (Enraciner).
+            <p>Croissance plus rigide. Bonne base pour les effets de fixation (Figer).
             Incompatible avec les especes fragiles.</p>
             <p className="terrain-species">Especes compatibles : Liane, Mousse</p>
           </div>
@@ -433,15 +433,15 @@ function TimeSection() {
             <strong>Fige</strong>
             <span className="time-delta" style={{ color: '#a8e0f7' }}>aucun changement</span>
           </div>
-          <p>Aucun changement d'age ni transformation. Securise une piece cle a un
-          age precis, ou bloque un combo adverse.</p>
-          <p className="time-cost">Cout : 2 Charges de Temps</p>
+          <p>Aucun changement d'age ni transformation. Protege une plante alliee pendant
+          2 tours contre toute manipulation du temps.</p>
+          <p className="time-cost">Cout : 1 Seve</p>
         </div>
       </div>
 
       <div className="rules-tip">
-        <strong>A savoir :</strong> l'action Enraciner protege une plante alliee
-        contre la prochaine alteration temporelle adverse.
+        <strong>A savoir :</strong> l'action Figer protege une plante alliee pendant
+        2 tours, la rendant insensible a toute manipulation du temps.
       </div>
     </div>
   );
@@ -451,7 +451,7 @@ function ActionsSection() {
   return (
     <div className="rules-section">
       <h2>Actions</h2>
-      <p>Chaque joueur effectue <strong>2 actions par tour</strong>. Voici les 6 actions disponibles.</p>
+      <p>Chaque joueur effectue <strong>2 actions par tour</strong>. Voici les 5 actions disponibles.</p>
 
       <div className="rules-action-list">
         <div className="rules-action-card">
@@ -485,11 +485,13 @@ function ActionsSection() {
           <div className="action-card-header">
             <span className="action-card-num">3</span>
             <strong>Figer</strong>
-            <span className="action-card-cost time">2 Charges</span>
+            <span className="action-card-cost sap">1 Seve</span>
           </div>
-          <p>Applique l'etat Fige a une case. Plus couteux mais tres puissant pour
-          securiser un age precis ou bloquer un adversaire.</p>
+          <p>Fige une plante alliee pendant 2 tours. La plante devient insensible a
+          toute manipulation du temps (regression, ralentissement, acceleration).
+          Securise une piece cle a un age precis.</p>
           <div className="action-constraints">
+            <span>Plante alliee uniquement</span>
             <span>Case sans effet temporel actif</span>
           </div>
         </div>
@@ -510,21 +512,8 @@ function ActionsSection() {
         <div className="rules-action-card">
           <div className="action-card-header">
             <span className="action-card-num">5</span>
-            <strong>Enraciner</strong>
-            <span className="action-card-cost sap">1 Seve</span>
-          </div>
-          <p>Protege une plante alliee : elle ignorera la prochaine alteration temporelle.
-          Essentiel pour securiser des pieces cles.</p>
-          <div className="action-constraints">
-            <span>Plante alliee non enracinee</span>
-          </div>
-        </div>
-
-        <div className="rules-action-card">
-          <div className="action-card-header">
-            <span className="action-card-num">6</span>
             <strong>Disseminer</strong>
-            <span className="action-card-cost sap">1 Seve</span>
+            <span className="action-card-cost free">Gratuit</span>
           </div>
           <p>Cree une influence sur les cases adjacentes. En V1, reserve aux
           Champignons d'Echo : copie l'effet d'une plante voisine adverse.</p>

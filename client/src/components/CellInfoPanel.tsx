@@ -112,14 +112,6 @@ export function CellInfoPanel({ cell, myPlayerId, players }: CellInfoPanelProps)
                 {isMyPlant ? 'Vous' : ownerPlayer?.name ?? 'Adversaire'}
               </span>
             </div>
-            {cell.plant.rooted && (
-              <div className="cell-info-stat">
-                <span className="cell-info-stat-label">Etat</span>
-                <span className="cell-info-stat-value" style={{ color: '#2d8f5e' }}>
-                  Enracinee (protegee)
-                </span>
-              </div>
-            )}
             {cell.plant.hasRegressed && (
               <div className="cell-info-stat">
                 <span className="cell-info-stat-label">Historique</span>

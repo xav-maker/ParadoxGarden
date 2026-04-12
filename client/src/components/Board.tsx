@@ -23,8 +23,6 @@ export function Board({
   return (
     <div className="board-container">
       <svg
-        width={svgWidth}
-        height={svgHeight}
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
         className="game-board"
       >

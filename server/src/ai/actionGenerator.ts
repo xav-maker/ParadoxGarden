@@ -44,16 +44,12 @@ export function generateLegalActions(
         }
       }
 
-      if (!cell.temporalEffect && resources.timeCharges >= ACTION_COSTS[ActionType.Freeze].timeCharges) {
+      if (cell.plant?.ownerId === playerId && !cell.temporalEffect && resources.sap >= ACTION_COSTS[ActionType.Freeze].sap) {
         actions.push({ type: ActionType.Freeze, x, y });
       }
 
       if (cell.plant?.ownerId === playerId) {
         actions.push({ type: ActionType.Harvest, x, y });
-      }
-
-      if (cell.plant?.ownerId === playerId && !cell.plant.rooted && resources.sap >= ACTION_COSTS[ActionType.Root].sap) {
-        actions.push({ type: ActionType.Root, x, y });
       }
 
       if (

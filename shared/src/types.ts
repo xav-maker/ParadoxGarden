@@ -28,7 +28,6 @@ export enum ActionType {
   AlterTime = 'alter_time',
   Freeze = 'freeze',
   Harvest = 'harvest',
-  Root = 'root',
   Spread = 'spread',
 }
 
@@ -55,7 +54,6 @@ export interface Plant {
   ownerId: string;
   species: Species;
   age: number;
-  rooted: boolean;
   /** Track whether this plant has ever regressed in age */
   hasRegressed: boolean;
 }
@@ -119,12 +117,6 @@ export interface HarvestAction {
   y: number;
 }
 
-export interface RootAction {
-  type: ActionType.Root;
-  x: number;
-  y: number;
-}
-
 export interface SpreadAction {
   type: ActionType.Spread;
   x: number;
@@ -136,7 +128,6 @@ export type GameAction =
   | AlterTimeAction
   | FreezeAction
   | HarvestAction
-  | RootAction
   | SpreadAction;
 
 // ── Turn submission ──
