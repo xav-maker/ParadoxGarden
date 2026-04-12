@@ -5,6 +5,8 @@ import { createGameState } from '../game/GameState.js';
 export const AI_PLAYER_ID = 'ai-player';
 export const AI_PLAYER_NAME = 'Ordinateur';
 
+const ROOM_CLEANUP_DELAY_MS = 60_000;
+
 export interface Room {
   code: string;
   gameId: string;
@@ -26,6 +28,7 @@ function generateRoomCode(): string {
 class RoomManager {
   private rooms = new Map<string, Room>();
   private socketToRoom = new Map<string, string>();
+  private cleanupTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   createRoom(socketId: string, playerName: string): { room: Room; playerId: string } {
     const code = generateRoomCode();
@@ -127,6 +130,30 @@ class RoomManager {
     return null;
   }
 
+  private cancelCleanup(roomCode: string) {
+    const timer = this.cleanupTimers.get(roomCode);
+    if (timer) {
+      clearTimeout(timer);
+      this.cleanupTimers.delete(roomCode);
+    }
+  }
+
+  private scheduleCleanup(roomCode: string) {
+    this.cancelCleanup(roomCode);
+    const timer = setTimeout(() => {
+      const room = this.rooms.get(roomCode);
+      if (!room) return;
+      const p1Connected = room.player1?.socketId && room.player1.socketId !== '';
+      const p2Connected = room.player2?.socketId && room.player2.socketId !== '';
+      if (!p1Connected && !p2Connected) {
+        this.rooms.delete(roomCode);
+        this.cleanupTimers.delete(roomCode);
+        console.log(`Room ${roomCode} cleaned up after timeout`);
+      }
+    }, ROOM_CLEANUP_DELAY_MS);
+    this.cleanupTimers.set(roomCode, timer);
+  }
+
   handleDisconnect(socketId: string): { room: Room; opponentSocketId: string } | null {
     const room = this.getRoomBySocket(socketId);
     if (!room) return null;
@@ -141,9 +168,10 @@ class RoomManager {
       return { room, opponentSocketId };
     }
 
-    // Both disconnected, clean up
-    if (!room.player1?.socketId && !room.player2?.socketId) {
-      this.rooms.delete(room.code);
+    const p1Connected = room.player1?.socketId && room.player1.socketId !== '';
+    const p2Connected = room.player2?.socketId && room.player2.socketId !== '';
+    if (!p1Connected && !p2Connected) {
+      this.scheduleCleanup(room.code);
     }
 
     return null;
@@ -161,6 +189,7 @@ class RoomManager {
       return null;
     }
 
+    this.cancelCleanup(roomCode);
     this.socketToRoom.set(socketId, roomCode);
     return room;
   }

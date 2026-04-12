@@ -189,6 +189,7 @@ export interface ServerToClientEvents {
   room_created: (data: { roomCode: string; playerId: string }) => void;
   room_joined: (data: { roomCode: string; playerId: string }) => void;
   room_rejoined: (data: { gameState: ClientGameState }) => void;
+  room_rejoined_lobby: (data: { roomCode: string; playerId: string }) => void;
   game_started: (data: { gameState: ClientGameState }) => void;
   game_updated: (data: { gameState: ClientGameState }) => void;
   game_over: (data: { gameState: ClientGameState }) => void;

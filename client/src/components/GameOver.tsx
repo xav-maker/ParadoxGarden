@@ -4,9 +4,10 @@ import { HarmonyIcon } from './Icons';
 interface GameOverProps {
   gameState: ClientGameState;
   myPlayerId: string;
+  onLeaveGame: () => void;
 }
 
-export function GameOver({ gameState, myPlayerId }: GameOverProps) {
+export function GameOver({ gameState, myPlayerId, onLeaveGame }: GameOverProps) {
   const isWinner = gameState.winner === myPlayerId;
   const isDraw = !gameState.winner;
   const me = gameState.players.find((p) => p.id === myPlayerId)!;
@@ -48,7 +49,7 @@ export function GameOver({ gameState, myPlayerId }: GameOverProps) {
           </div>
         </div>
 
-        <button onClick={() => window.location.reload()}>
+        <button onClick={onLeaveGame}>
           Nouvelle partie
         </button>
       </div>

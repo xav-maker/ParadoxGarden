@@ -99,15 +99,20 @@ export function registerSocketHandlers(io: GameServer): void {
 
     socket.on('rejoin_room', ({ roomCode, playerId }) => {
       const room = roomManager.handleReconnect(socket.id, roomCode, playerId);
-      if (!room || !room.gameState) {
+      if (!room) {
         socket.emit('error', { message: 'Could not rejoin room' });
         return;
       }
 
       socket.join(room.code);
-      socket.emit('room_rejoined', {
-        gameState: toClientState(room.gameState, playerId, room.isSolo || undefined),
-      });
+
+      if (room.gameState) {
+        socket.emit('room_rejoined', {
+          gameState: toClientState(room.gameState, playerId, room.isSolo || undefined),
+        });
+      } else {
+        socket.emit('room_rejoined_lobby', { roomCode: room.code, playerId });
+      }
 
       const opponentSocketId = roomManager.getOpponentSocketId(socket.id);
       if (opponentSocketId) {

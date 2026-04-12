@@ -14,10 +14,12 @@ function App() {
     gameState,
     errorMessage,
     opponentDisconnected,
+    reconnecting,
     createRoom,
     joinRoom,
     createSoloGame,
     submitTurn,
+    leaveGame,
     clearError,
   } = useSocket();
 
@@ -25,6 +27,16 @@ function App() {
 
   if (showRules) {
     return <RulesPage onClose={() => setShowRules(false)} />;
+  }
+
+  if (reconnecting) {
+    return (
+      <div className="lobby">
+        <h1>Les Jardins du Paradoxe</h1>
+        <div className="loader" />
+        <p className="connecting">Reconnexion a la partie...</p>
+      </div>
+    );
   }
 
   if (!gameState || !playerId) {
@@ -52,7 +64,7 @@ function App() {
         onShowRules={() => setShowRules(true)}
       />
       {gameState.phase === GamePhase.Finished && (
-        <GameOver gameState={gameState} myPlayerId={playerId} />
+        <GameOver gameState={gameState} myPlayerId={playerId} onLeaveGame={leaveGame} />
       )}
       {errorMessage && (
         <div className="floating-error" onClick={clearError}>
