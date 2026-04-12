@@ -188,6 +188,7 @@ export interface ClientPlayer extends Omit<Player, 'secretObjectives'> {
 export interface ServerToClientEvents {
   room_created: (data: { roomCode: string; playerId: string }) => void;
   room_joined: (data: { roomCode: string; playerId: string }) => void;
+  room_rejoined: (data: { gameState: ClientGameState }) => void;
   game_started: (data: { gameState: ClientGameState }) => void;
   game_updated: (data: { gameState: ClientGameState }) => void;
   game_over: (data: { gameState: ClientGameState }) => void;
@@ -199,6 +200,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   create_room: (data: { playerName: string }) => void;
   join_room: (data: { roomCode: string; playerName: string }) => void;
+  rejoin_room: (data: { roomCode: string; playerId: string }) => void;
   submit_turn: (data: { actions: [GameAction, GameAction] }) => void;
   create_solo_game: (data: { playerName: string }) => void;
 }

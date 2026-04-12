@@ -97,6 +97,26 @@ export function registerSocketHandlers(io: GameServer): void {
       }
     });
 
+    socket.on('rejoin_room', ({ roomCode, playerId }) => {
+      const room = roomManager.handleReconnect(socket.id, roomCode, playerId);
+      if (!room || !room.gameState) {
+        socket.emit('error', { message: 'Could not rejoin room' });
+        return;
+      }
+
+      socket.join(room.code);
+      socket.emit('room_rejoined', {
+        gameState: toClientState(room.gameState, playerId, room.isSolo || undefined),
+      });
+
+      const opponentSocketId = roomManager.getOpponentSocketId(socket.id);
+      if (opponentSocketId) {
+        io.to(opponentSocketId).emit('opponent_reconnected');
+      }
+
+      console.log(`Player ${playerId} rejoined room ${roomCode}`);
+    });
+
     socket.on('disconnect', () => {
       const result = roomManager.handleDisconnect(socket.id);
       if (result) {

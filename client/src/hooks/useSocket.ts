@@ -27,6 +27,8 @@ export interface UseSocketReturn {
 
 export function useSocket(): UseSocketReturn {
   const socketRef = useRef<GameSocket | null>(null);
+  const roomCodeRef = useRef<string | null>(null);
+  const playerIdRef = useRef<string | null>(null);
   const [connected, setConnected] = useState(false);
   const [roomCode, setRoomCode] = useState<string | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
@@ -40,17 +42,34 @@ export function useSocket(): UseSocketReturn {
     });
     socketRef.current = socket;
 
-    socket.on('connect', () => setConnected(true));
+    socket.on('connect', () => {
+      setConnected(true);
+      if (roomCodeRef.current && playerIdRef.current) {
+        socket.emit('rejoin_room', {
+          roomCode: roomCodeRef.current,
+          playerId: playerIdRef.current,
+        });
+      }
+    });
     socket.on('disconnect', () => setConnected(false));
 
     socket.on('room_created', ({ roomCode, playerId }) => {
+      roomCodeRef.current = roomCode;
+      playerIdRef.current = playerId;
       setRoomCode(roomCode);
       setPlayerId(playerId);
     });
 
     socket.on('room_joined', ({ roomCode, playerId }) => {
+      roomCodeRef.current = roomCode;
+      playerIdRef.current = playerId;
       setRoomCode(roomCode);
       setPlayerId(playerId);
+    });
+
+    socket.on('room_rejoined', ({ gameState }) => {
+      setGameState(gameState);
+      setOpponentDisconnected(false);
     });
 
     socket.on('game_started', ({ gameState }) => {
