@@ -47,6 +47,11 @@ export function resolveTurn(
     player.timeCharges += TIME_CHARGES_PER_GAIN;
   }
 
+  // Phase C-D: Growth & effects for the active player's plants (at start of their turn)
+  state.echoCopiedThisTurn = false;
+  const growthEvents = resolveGrowth(state, playerId);
+  const effectEvents = resolveEffects(state, playerId);
+
   // Phase B: Apply player actions
   const actionEvents: string[] = [];
   for (const action of actions) {
@@ -54,30 +59,11 @@ export function resolveTurn(
     actionEvents.push(...events);
   }
 
-  // Phases C-D run once per round (after both players have acted)
-  const isRoundEnd = state.turnNumber % 2 === 0;
-  let growthEvents: string[] = [];
-  let effectEvents: string[] = [];
-
-  if (isRoundEnd) {
-    // Reset echo flag before effects so it reflects this round only
-    state.echoCopiedThisTurn = false;
-
-    // Phase C: Growth
-    growthEvents = resolveGrowth(state);
-
-    // Phase D: Stage effects
-    effectEvents = resolveEffects(state);
-  }
-
   // Phase F: Check victory (before cleanup so temporal states remain visible for floraisons)
   const floraisonWin = checkFloraisons(state, playerId);
 
-  // Phase E: Cleanup temporal effects (once per round, after victory check)
-  let cleanupEvents: string[] = [];
-  if (isRoundEnd) {
-    cleanupEvents = cleanupTemporalEffects(state);
-  }
+  // Phase E: Cleanup temporal effects for this player's cells
+  const cleanupEvents = cleanupTemporalEffects(state, playerId);
 
   // Log entry
   const logEntry: ActionLogEntry = {

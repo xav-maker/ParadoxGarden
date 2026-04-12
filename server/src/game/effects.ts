@@ -10,16 +10,16 @@ import {
 import { getOrthogonalNeighbors } from './board.js';
 
 /**
- * Phase D: Resolve stage effects for all plants based on their current age.
+ * Phase D: Resolve stage effects for plants belonging to a specific player.
  */
-export function resolveEffects(state: GameState): string[] {
+export function resolveEffects(state: GameState, ownerId: string): string[] {
   const events: string[] = [];
 
   const plantsToProcess: { cell: Cell; x: number; y: number }[] = [];
   for (let y = 0; y < BOARD_HEIGHT; y++) {
     for (let x = 0; x < BOARD_WIDTH; x++) {
       const cell = state.board[y][x];
-      if (cell.plant) {
+      if (cell.plant && cell.plant.ownerId === ownerId) {
         plantsToProcess.push({ cell, x, y });
       }
     }

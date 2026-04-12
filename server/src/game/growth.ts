@@ -9,16 +9,16 @@ import {
 } from '@jardins/shared';
 
 /**
- * Phase C: Resolve growth for all plants on the board.
+ * Phase C: Resolve growth for plants belonging to a specific player.
  * Each plant ages according to the temporal state of its cell.
  */
-export function resolveGrowth(state: GameState): string[] {
+export function resolveGrowth(state: GameState, ownerId: string): string[] {
   const events: string[] = [];
 
   for (let y = 0; y < BOARD_HEIGHT; y++) {
     for (let x = 0; x < BOARD_WIDTH; x++) {
       const cell = state.board[y][x];
-      if (!cell.plant) continue;
+      if (!cell.plant || cell.plant.ownerId !== ownerId) continue;
 
       if (cell.timeState === TimeState.Frozen) {
         continue;

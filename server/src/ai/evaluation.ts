@@ -43,8 +43,9 @@ export function simulatePair(state: GameState, pair: [GameAction, GameAction]): 
   } catch {
     return clone;
   }
-  resolveGrowth(clone);
-  resolveEffects(clone);
+  const aiId = clone.activePlayerId;
+  resolveGrowth(clone, aiId);
+  resolveEffects(clone, aiId);
   return clone;
 }
 
