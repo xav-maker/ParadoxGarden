@@ -114,6 +114,8 @@ export function useSocket(): UseSocketReturn {
 
     socket.on('room_rejoined', ({ gameState }) => {
       reconnectingRef.current = false;
+      setRoomCode(roomCodeRef.current);
+      setPlayerId(playerIdRef.current);
       setGameState(gameState);
       setOpponentDisconnected(false);
       setReconnecting(false);
